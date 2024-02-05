@@ -10,6 +10,10 @@ export async function loader() {
     return defer({
         deferedData: getUserDetails(),
         mainPageContent: "Profile",
+    }, {
+        headers: {
+            "Cache-Control": "public, max-age=3600",
+        },
     });
 }
 
