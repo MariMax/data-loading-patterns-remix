@@ -1,36 +1,26 @@
-import { Await, useAsyncValue, useLoaderData } from "@remix-run/react";
-import { defer } from "@remix-run/node";
-import { Suspense } from "react";
-
-const getUserDetails = () => new Promise((resolve) => {
-    setTimeout(() => resolve("User details"), 3000);
-});
+import { useFetcher, useLoaderData } from "@remix-run/react";
+import { ReactNode, useEffect } from "react";
 
 export async function loader() {
-    return defer({
-        deferedData: getUserDetails(),
+    return {
         mainPageContent: "Profile",
-    });
+    };
 }
 
-const UnderTheFoldContent = () => {
-    const resolvedValue = useAsyncValue();
-    return <>{resolvedValue}</>;
-};
-
 export default function Profile() {
-    const { deferedData, mainPageContent } = useLoaderData<typeof loader>();
+    const { mainPageContent } = useLoaderData<typeof loader>();
+    const fetcher = useFetcher();
+
+    useEffect(() => {
+        fetcher.load('/api/profile')
+    }, []);
 
     return <div>
         <div>
             {mainPageContent}
         </div>
         <div>
-            <Suspense fallback={<div>Loading...</div>}>
-                <Await resolve={deferedData}>
-                    <UnderTheFoldContent />
-                </Await>
-            </Suspense>
+            {fetcher.data ? fetcher.data as ReactNode : <div>Loading...</div>}
         </div>
     </div >;
 }
