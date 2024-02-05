@@ -1,4 +1,4 @@
-import { Await, useAsyncValue, useLoaderData } from "@remix-run/react";
+import { Await, ClientLoaderFunctionArgs, useAsyncValue, useLoaderData } from "@remix-run/react";
 import { defer } from "@remix-run/node";
 import { Suspense } from "react";
 
@@ -10,12 +10,18 @@ export async function loader() {
     return defer({
         deferedData: getUserDetails(),
         mainPageContent: "Profile",
-    }, {
-        headers: {
-            "Cache-Control": "public, max-age=3600",
-        },
     });
 }
+
+let response: null | typeof loader | {} = null;
+export async function clientLoader({serverLoader}: ClientLoaderFunctionArgs) {
+    if (!response) {
+        response = await serverLoader();
+    }
+    return response;
+}
+
+clientLoader.hydrate = true;
 
 const UnderTheFoldContent = () => {
     const resolvedValue = useAsyncValue();
