@@ -1,12 +1,36 @@
-import { useLoaderData } from "@remix-run/react";
+import { Await, useAsyncValue, useLoaderData } from "@remix-run/react";
+import { defer } from "@remix-run/node";
+import { Suspense } from "react";
+
+const getUserDetails = () => new Promise((resolve) => {
+    setTimeout(() => resolve("User details"), 3000);
+});
 
 export async function loader() {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve("Profile"), 3000);
+    return defer({
+        deferedData: getUserDetails(),
+        mainPageContent: "Profile",
     });
 }
 
+const UnderTheFoldContent = () => {
+    const resolvedValue = useAsyncValue();
+    return <>{resolvedValue}</>;
+};
+
 export default function Profile() {
-    const data = useLoaderData();
-    return data;
+    const { deferedData, mainPageContent } = useLoaderData<typeof loader>();
+
+    return <div>
+        <div>
+            {mainPageContent}
+        </div>
+        <div>
+            <Suspense fallback={<div>Loading...</div>}>
+                <Await resolve={deferedData}>
+                    <UnderTheFoldContent />
+                </Await>
+            </Suspense>
+        </div>
+    </div >;
 }
