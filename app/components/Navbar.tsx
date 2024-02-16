@@ -15,7 +15,7 @@ export const Navbar = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/profile" className={linkStyle}>
+          <NavLink to="/profile" className={linkStyle} prefetch="render">
             Profile
           </NavLink>
         </li>

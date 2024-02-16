@@ -13,16 +13,6 @@ export async function loader() {
     });
 }
 
-let response: null | typeof loader | {} = null;
-export async function clientLoader({serverLoader}: ClientLoaderFunctionArgs) {
-    if (!response) {
-        response = await serverLoader();
-    }
-    return response;
-}
-
-clientLoader.hydrate = true;
-
 const UnderTheFoldContent = () => {
     const resolvedValue = useAsyncValue();
     return <>{resolvedValue}</>;
